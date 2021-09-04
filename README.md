@@ -1,6 +1,3 @@
-# rails6_dev_dockerized_template
-Rails開發環境容器化 Ruby 3.0 / Rails 6.1.4 / mysql / Webpacker / TailwindCSS / Redis / Sidekiq / Nginx / Lets Encrypt 實戰指南
-# Rails開發環境容器化 Ruby 3.0 / Rails 6.1.4 / mysql  / Webpacker /  TailwindCSS / Redis / Sidekiq / Nginx / Lets Encrypt 實戰指南
 
 ## 前言
 
