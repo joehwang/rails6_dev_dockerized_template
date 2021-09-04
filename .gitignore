@@ -1,0 +1,40 @@
+
+
+databases/mysql_data/*
+databases/mongo_data/*
+!databases/mysql_data/.keep
+!databases/mongo_data/.keep
+/redis_data/*
+!/redis_data/.keep
+nginx/letsencrypt/*
+!nginx/letsencrypt/.keep
+# Ignore bundler config.
+rails_app/.bundle
+
+# Ignore all logfiles and tempfiles.
+rails_app/log/*
+rails_app/tmp/*
+!rails_app/log/.keep
+!rails_app/tmp/.keep
+
+# Ignore pidfiles, but keep the directory.
+rails_app/tmp/pids/*
+!rails_app/tmp/pids/
+!rails_app/tmp/pids/.keep
+
+# Ignore uploaded files in development.
+rails_app/storage/*
+!rails_app/storage/.keep
+
+rails_app/public/assets
+.byebug_history
+
+# Ignore master key for decrypting credentials and more.
+rails_app/config/master.key
+
+rails_app/public/packs
+rails_app/public/packs-test
+rails_app/node_modules
+rails_app/yarn-error.log
+yarn-debug.log*
+.yarn-integrity

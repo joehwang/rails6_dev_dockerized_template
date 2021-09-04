@@ -1,0 +1,134 @@
+version: "3.2"
+networks:
+  dev:
+
+volumes:
+  gem_cache:
+  shared_data:
+
+services:
+  rails_app:
+    build:
+      context: ./rails_app
+      dockerfile: Dockerfile
+    image: joehwang/rails6_dev_dockerized_template
+    volumes:
+      - shared_data:/var/shared
+      - gem_cache:/usr/local/bundle/gems
+      - ./rails_app:/rails_app
+    ports:
+      - 3303:3303
+    stdin_open: true
+    tty: true
+    entrypoint: docker-entrypoint.sh
+    command: bundle exec rails server -p 3303 -b 0.0.0.0 --pid ./tmp/pids/green.pid -e development
+    environment:
+      RAILS_ENV: development
+      DB_ADAPTER: mysql # mysql, postgresql, sqlite3, oracle, sqlserver, jdbcmysql, jdbcsqlite3, jdbcpostgresql, jdbc
+      RAILS_VERSION: 6.1.4
+    networks:
+      - dev
+    env_file:
+      - ".env"
+
+  db:
+    image: mysql:5.7.22
+    volumes:
+      - ./databases/mysql_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - dev
+    env_file:
+      - ".env"
+
+  redis:
+    image: redis
+    command: [
+        "bash",
+        "-c",
+        "
+        docker-entrypoint.sh
+        --requirepass ${REDIS_PASSWORD}
+        ",
+      ]
+    ports:
+      - "6380:6380"
+    volumes:
+      - ./redis_data:/data
+    networks:
+      - dev
+    env_file:
+      - ".env"
+
+  web_serv:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    entrypoint: docker-entrypoint.sh
+    volumes:
+      - ./nginx/nginx.template:/tmp/default.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:rw
+      - ./:/web_data
+      - ./nginx/letsencrypt:/etc/letsencrypt
+    ports:
+      - "30304:80"
+      - "30305:443"
+    depends_on:
+      - rails_app
+    environment:
+      - NGINX_HOST=17line.xyz
+      - DOMAIN_LIST=17line.xyz,api.17line.xyz
+      - NGINX_PORT=80
+      - CERTBOT_EMAIL=joehwang.com@gmail.com
+      #- CERTBOT_TEST_MODE=--test-cert #option
+    networks:
+      - dev
+
+  sidekiq:
+    container_name: sidekiq
+    depends_on:
+      - redis
+    image: joehwang/rails6_dev_dockerized_template
+    command: bundle exec sidekiq -C ./config/sidekiq.yml  -e development
+    working_dir: /rails_app
+    volumes:
+      - shared_data:/var/shared
+      - gem_cache:/usr/local/bundle/gems
+      - ./rails_app:/rails_app
+    env_file:
+      - ".env"
+    networks:
+      - dev
+
+  webpacker:
+    image: joehwang/rails6_dev_dockerized_template
+    command: ruby bin/webpack-dev-server
+    volumes:
+      - shared_data:/var/shared
+      - gem_cache:/usr/local/bundle/gems
+      - ./rails_app:/rails_app
+    environment:
+      - NODE_ENV=development
+      - RAILS_ENV=development
+      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
+    ports:
+      - "3035:3035"
+    networks:
+      - dev
+
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    env_file:
+      - ".env"
+    environment:
+      REDIS_HOST: "redis"
+      REDIS_DB: "0"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - dev
