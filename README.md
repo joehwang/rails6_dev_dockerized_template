@@ -51,7 +51,7 @@ Webpacker容器編譯 JS/SCSS 的修改，LiveReload更新檔案後刷新瀏覽�
 
 Sidekiq為佇列服務與Redis搭配
 
-詳細解說見medium: 
+詳細解說見medium: https://medium.com/@joehwang.com/rails%E9%96%8B%E7%99%BC%E7%92%B0%E5%A2%83%E5%AE%B9%E5%99%A8%E5%8C%96-505dba2c9678
 
 
 # 參考連結
